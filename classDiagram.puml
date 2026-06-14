@@ -1,0 +1,67 @@
+@startuml
+
+skinparam style strictuml
+skinparam classAttributeIconSize 0
+
+'' ingredientes singleton? ok mas precisa ter quantidade que ainda tem
+interface singleton {}
+class Alface implements singleton {}
+class Tomate implements singleton {}
+class Pão implements singleton {}
+class Carne implements singleton {}
+
+'' hamburguers pre-prontso tem singleton também
+interface Burguer implements singleton {}
+class hamburguerPadraoCasa implements Burguer {}
+class hamburguerXBurguer implements Burguer {}
+class hamburguerXBacon implements Burguer {}
+class hamburguerDoubleCheese implements Burguer {}
+
+'' hamburguer tipo subway vc pode ir montando o seu
+'' builder
+interface builder {}
+class HamburguerBuilder implements Burguer, builder {}
+
+class Pedido implements builder {}
+
+'' factory method (para criar hamburgueres de diferentes tipos)
+interface BurgerFactory implements Burguer {
+    public getBurger(String burguerName): Burguer
+}
+
+'' abstract factory
+
+
+interface ComboAbstractFactory {
+    public createBurger(): Burguer
+    public createDrink(): Drink
+    public createExtra(): Extra
+}
+
+class DoubleBaconFactory implements ComboAbstractFactory {}
+class CheeseLoveFactory implements ComboAbstractFactory {}
+
+'' prototype para clonar hamburguer (futuramente podemos fazer algo para alterar um hamburguer de cópia em pedido)
+interface Prototype<T> {
+    public clone(): T
+}
+
+
+
+class Combo implements Prototype {}
+class Drink implements Prototype {}
+interface Extra implements Prototype {}
+
+'' decorator
+'' -> para pedido delivery (frete no preço)
+'' -> para pedido no local (couver artístico + taxa garçom)
+'' -> para alterações de produtos no pedido
+
+abstract class PedidoDecorator {}
+class DeliveryPedidoDecorator implements PedidoDecorator {}
+class CouverArtisticoPedidoDecorator implements PedidoDecorator {}
+class ServicoPedidoDecorator implements PedidoDecorator {}
+
+
+@enduml
+
