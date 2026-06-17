@@ -5,10 +5,10 @@ skinparam classAttributeIconSize 0
 
 '' ingredientes singleton? ok mas precisa ter quantidade que ainda tem
 interface singleton {}
-class Alface implements singleton {}
-class Tomate implements singleton {}
-class Pão implements singleton {}
-class Carne implements singleton {}
+''class Alface implements singleton {}
+''class Tomate implements singleton {}
+''class Pão implements singleton {}
+''class Carne implements singleton {}
 
 '' hamburguers pre-prontso tem singleton também
 interface Burguer implements singleton {}
@@ -31,7 +31,6 @@ interface BurgerFactory implements Burguer {
 
 '' abstract factory
 
-
 interface ComboAbstractFactory {
     public createBurger(): Burguer
     public createDrink(): Drink
@@ -45,8 +44,6 @@ class CheeseLoveFactory implements ComboAbstractFactory {}
 interface Prototype<T> {
     public clone(): T
 }
-
-
 
 class Combo implements Prototype {}
 class Drink implements Prototype {}
@@ -63,5 +60,70 @@ class CouverArtisticoPedidoDecorator implements PedidoDecorator {}
 class ServicoPedidoDecorator implements PedidoDecorator {}
 
 
-@enduml
+''strategy - Formas de Pagamento
+interface FormaPagamento {}
+class Pix implements FormaPagamento {}
+class Cartao implements FormaPagamento {}
+class Dinheiro implements FormaPagamento {}
+class Pedido {}
+Pedido ..> FormaPagamento
 
+
+''state
+interface PedidoEstado {}
+class PedidoEstadoRealizado implements PedidoEstado, singleton {}
+class PedidoEstadoEmPreparo implements PedidoEstado, singleton {}
+class PedidoEstadoPronto implements PedidoEstado, singleton {}
+class PedidoEstadoEmEntrega implements PedidoEstado, singleton {}
+class PedidoEstadoEntregue implements PedidoEstado, singleton {}
+class PedidoEstadoCancelado implements PedidoEstado, singleton {}
+
+Pedido -> PedidoEstado
+Pedido ..> PedidoEstado
+
+
+''facade
+class SistemaDeliveryFacade {}
+
+SistemaDeliveryFacade ..> HamburguerBuilder
+SistemaDeliveryFacade ..> Pedido
+SistemaDeliveryFacade ..> DeliveryPedidoDecorator
+SistemaDeliveryFacade ..> FormaPagamento
+
+
+''observer
+interface ObservadorPedido {
++ atualizar(status: PedidoEstado)
+}
+class AppCliente implements ObservadorPedido {}
+class AppMotoboy implements ObservadorPedido {}
+
+Pedido o-> ObservadorPedido
+
+
+''chain of responsibility
+abstract class ValidadorPedido {}
+class ValidadorAreaEntrega extends ValidadorPedido {}
+class ValidadorPagamento extends ValidadorPedido {}
+class ValidadorEstoque extends ValidadorPedido {}
+
+ValidadorPedido -> ValidadorPedido
+Pedido ..> ValidadorPedido
+
+
+''flyweight
+interface IngredienteFlyweight {}
+class Alface implements IngredienteFlyweight {}
+class Tomate implements IngredienteFlyweight {}
+class Pão implements IngredienteFlyweight {}
+class Carne implements IngredienteFlyweight {}
+
+class IngredienteFactory {}
+class ItemPedido {}
+
+IngredienteFactory -> IngredienteFlyweight
+ItemPedido -> IngredienteFlyweight
+HamburguerBuilder ..> ItemPedido
+
+
+@enduml
