@@ -11,7 +11,7 @@ interface singleton {}
 ''class Carne implements singleton {}
 
 '' hamburguers pre-prontso tem singleton também
-interface Burguer implements singleton {}
+interface Burguer implements singleton, Order {}
 class hamburguerPadraoCasa implements Burguer {}
 class hamburguerXBurguer implements Burguer {}
 class hamburguerXBacon implements Burguer {}
@@ -45,9 +45,9 @@ interface Prototype<T> {
     public clone(): T
 }
 
-class Combo implements Prototype {}
-class Drink implements Prototype {}
-interface Extra implements Prototype {}
+class Combo implements Prototype, Order {}
+class Drink implements Prototype, Order {}
+interface Extra implements Prototype, Order {}
 
 '' decorator
 '' -> para pedido delivery (frete no preço)
@@ -103,7 +103,7 @@ Pedido o-> ObservadorPedido
 
 ''chain of responsibility
 abstract class ValidadorPedido {}
-class ValidadorAreaEntrega extends ValidadorPedido {}
+class V[118;1:3ualidadorAreaEntrega extends ValidadorPedido {}
 class ValidadorPagamento extends ValidadorPedido {}
 class ValidadorEstoque extends ValidadorPedido {}
 
@@ -125,5 +125,41 @@ IngredienteFactory -> IngredienteFlyweight
 ItemPedido -> IngredienteFlyweight
 HamburguerBuilder ..> ItemPedido
 
+'' visitor: visita o pedido
 
+interface Visitor {}
+class KitchenVisitor implements Visitor {}
+class OrderPriceVisitor implements Visitor {}
+class PackageVisitor implements Visitor {}
+
+'' bridge
+
+interface OrderType {}
+class DeliveryOrder implements OrderType {}
+class PickupOrder implements OrderType {}
+
+interface OrderOrigin {}
+class WhatsappOrder implements OrderOrigin {}
+class AppOrder implements OrderOrigin {}
+
+'' adapter
+
+interface APIAdapter {}
+class IFoodAdapter {}
+class RappiAdapter {}
+
+'' proxy
+
+interface CacheProxy {}
+class MenuProxy implements CacheProxy {}
+'' para nao precisar, por exemplo, reler o banco para pegar o menu
+
+'' composite
+
+interface Order {
+    public getNextItem()
+    public getFullOrder()
+}
+'' ja deixei uns itens seguindo Order (estao acima)
 @enduml
+
