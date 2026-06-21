@@ -103,7 +103,7 @@ Pedido o-> ObservadorPedido
 
 ''chain of responsibility
 abstract class ValidadorPedido {}
-class V[118;1:3ualidadorAreaEntrega extends ValidadorPedido {}
+class ValidadorAreaEntrega extends ValidadorPedido {}
 class ValidadorPagamento extends ValidadorPedido {}
 class ValidadorEstoque extends ValidadorPedido {}
 
