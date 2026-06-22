@@ -1,5 +1,4 @@
 @startuml
-
 skinparam style strictuml
 skinparam classAttributeIconSize 0
 
@@ -158,8 +157,78 @@ class MenuProxy implements CacheProxy {}
 
 interface Order {
     public getNextItem()
-    public getFullOrder()
+''    public getFullOrder()
 }
 '' ja deixei uns itens seguindo Order (estao acima)
-@enduml
 
+
+'' iterator
+
+interface Iterable<T> {}
+interface Iterator<T> {}
+
+'' Order passa a atuar como um Iterable
+Order -|> Iterable
+Order ..> Iterator
+class OrderIterator implements Iterator {}
+
+
+'' template method
+
+abstract class PreparadorItem {
+    + processar()
+}
+class PreparadorHamburguer extends PreparadorItem {}
+class PreparadorBebida extends PreparadorItem {}
+
+'' O estado "Em Preparo" da cozinha aciona o template
+PedidoEstadoEmPreparo ..> PreparadorItem
+
+
+'' command
+
+interface Command {
+    + execute()
+    + undo()
+}
+class AdicionarItemCommand implements Command {}
+class CancelarPedidoCommand implements Command {}
+
+class TelaCaixaInvoker {}
+
+'' invoker (a tela do caixa ou cozinha) guarda uma fila de comandos
+TelaCaixaInvoker -> Command
+
+
+'' mediator
+
+interface CoordenadorLogistica {}
+class CentralPedidos implements CoordenadorLogistica {}
+
+'' A central coordena a comunicação com o motoboy
+CentralPedidos ..> AppMotoboy
+
+
+'' memento
+
+class PedidoMemento {}
+class HistoricoPedidoCaretaker {}
+
+HistoricoPedidoCaretaker o-> PedidoMemento
+HamburguerBuilder ..> PedidoMemento : cria / restaura
+
+
+'' interpreter
+
+interface ExpressaoBusca {}
+class StatusExpressao implements ExpressaoBusca {}
+class ValorExpressao implements ExpressaoBusca {}
+class AndExpressao implements ExpressaoBusca {}
+
+'' Expressões compostas (como o AND) juntam outras expressões
+AndExpressao o-> ExpressaoBusca
+
+'' A expressão avalia os dados de um pedido
+ExpressaoBusca ..> Pedido
+
+@enduml
