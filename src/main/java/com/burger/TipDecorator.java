@@ -7,4 +7,8 @@ public class TipDecorator extends OrderDecorator {
         this.tipAmount = tip;
     }
     public double getPrice() { return wrappedItem.getPrice() + tipAmount; }
+
+    public TipDecorator clone() {
+        return new TipDecorator(this.wrappedItem.clone(), this.tipAmount);
+    }
 }

@@ -7,7 +7,10 @@ public abstract class OrderDecorator extends OrderComponent {
         this.name = item.getName() + " (Decorated)";
     }
     public abstract double getPrice();
-    public OrderComponent clone() { return null; }
+    
+    public OrderComponent getWrappedItem() {
+        return wrappedItem;
+    }
     public void accept(OrderVisitor visitor) {
         visitor.visitDecorator(this);
     }

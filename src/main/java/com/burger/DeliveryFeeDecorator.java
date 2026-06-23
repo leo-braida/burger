@@ -7,4 +7,8 @@ public class DeliveryFeeDecorator extends OrderDecorator {
         this.deliveryFee = fee;
     }
     public double getPrice() { return wrappedItem.getPrice() + deliveryFee; }
+
+    public DeliveryFeeDecorator clone() {
+        return new DeliveryFeeDecorator(this.wrappedItem.clone(), this.deliveryFee);
+    }
 }

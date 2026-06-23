@@ -9,6 +9,10 @@ public class Combo extends OrderComponent {
     public Combo() {}
     public Combo(String name) { this.name = name; }
     
+    public List<OrderComponent> getItems() {
+        return items;
+    }
+    
     public void addItem(OrderComponent item) {
         items.add(item);
     }

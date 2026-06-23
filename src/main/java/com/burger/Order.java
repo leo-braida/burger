@@ -18,8 +18,11 @@ public class Order {
     public OrderState getState() { return state; }
     
     public void setPaymentMethod(PaymentStrategy p) { this.paymentMethod = p; }
+    public PaymentStrategy getPaymentMethod() { return this.paymentMethod; }
+
     public void setOriginPlatform(OrderOriginPlatform p) { this.originPlatform = p; }
-    
+    public OrderOriginPlatform getOriginPlatform() { return this.originPlatform; }
+
     public void processPayment() {
         if (paymentMethod != null) paymentMethod.pay(calculateTotal());
     }
@@ -29,7 +32,11 @@ public class Order {
     public OrderIterator createIterator() { return new OrderItemIterator(items); }
     
     public double calculateTotal() {
-        return items.stream().mapToDouble(OrderComponent::getPrice).sum();
+        PricingVisitor visitor = new PricingVisitor();
+        for (OrderComponent item : items) {
+            item.accept(visitor);
+        }
+        return visitor.getTotalPrice();
     }
     
     public OrderMemento createMemento() {
