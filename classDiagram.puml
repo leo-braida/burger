@@ -2,233 +2,362 @@
 skinparam style strictuml
 skinparam classAttributeIconSize 0
 
-'' ingredientes singleton? ok mas precisa ter quantidade que ainda tem
-interface singleton {}
-''class Alface implements singleton {}
-''class Tomate implements singleton {}
-''class Pão implements singleton {}
-''class Carne implements singleton {}
+' ==========================================
+' CREATIONAL PATTERNS (5)
+' ==========================================
 
-'' hamburguers pre-prontso tem singleton também
-interface Burguer implements singleton, Order {}
-class hamburguerPadraoCasa implements Burguer {}
-class hamburguerXBurguer implements Burguer {}
-class hamburguerXBacon implements Burguer {}
-class hamburguerDoubleCheese implements Burguer {}
-
-'' hamburguer tipo subway vc pode ir montando o seu
-'' builder
-interface builder {}
-class HamburguerBuilder implements Burguer, builder {}
-
-class Pedido implements builder {}
-
-'' factory method (para criar hamburgueres de diferentes tipos)
-interface BurgerFactory implements Burguer {
-    public getBurger(String burguerName): Burguer
+' --- Singleton ---
+class MenuManager <<Singleton>> {
+    - static instance: MenuManager
+    - MenuManager()
+    + static getInstance(): MenuManager
+    + getMenu(): List<OrderComponent>
 }
 
-'' abstract factory
-
-interface ComboAbstractFactory {
-    public createBurger(): Burguer
-    public createDrink(): Drink
-    public createExtra(): Extra
+' --- Prototype & Composite ---
+abstract class OrderComponent <<Prototype>> <<Composite Component>> {
+    # name: String
+    # price: double
+    + getName(): String
+    + getPrice(): double
+    + abstract clone(): OrderComponent
+    + abstract accept(visitor: OrderVisitor)
 }
 
-class DoubleBaconFactory implements ComboAbstractFactory {}
-class CheeseLoveFactory implements ComboAbstractFactory {}
-
-'' prototype para clonar hamburguer (futuramente podemos fazer algo para alterar um hamburguer de cópia em pedido)
-interface Prototype<T> {
-    public clone(): T
+class OrderItem <<Composite Leaf>> extends OrderComponent  {
+    + clone(): OrderComponent
+    + accept(visitor: OrderVisitor)
 }
 
-class Combo implements Prototype, Order {}
-class Drink implements Prototype, Order {}
-interface Extra implements Prototype, Order {}
-
-'' decorator
-'' -> para pedido delivery (frete no preço)
-'' -> para pedido no local (couver artístico + taxa garçom)
-'' -> para alterações de produtos no pedido
-
-abstract class PedidoDecorator {}
-class DeliveryPedidoDecorator implements PedidoDecorator {}
-class CouverArtisticoPedidoDecorator implements PedidoDecorator {}
-class ServicoPedidoDecorator implements PedidoDecorator {}
-
-
-''strategy - Formas de Pagamento
-interface FormaPagamento {}
-class Pix implements FormaPagamento {}
-class Cartao implements FormaPagamento {}
-class Dinheiro implements FormaPagamento {}
-class Pedido {}
-Pedido ..> FormaPagamento
-
-
-''state
-interface PedidoEstado {}
-class PedidoEstadoRealizado implements PedidoEstado, singleton {}
-class PedidoEstadoEmPreparo implements PedidoEstado, singleton {}
-class PedidoEstadoPronto implements PedidoEstado, singleton {}
-class PedidoEstadoEmEntrega implements PedidoEstado, singleton {}
-class PedidoEstadoEntregue implements PedidoEstado, singleton {}
-class PedidoEstadoCancelado implements PedidoEstado, singleton {}
-
-Pedido -> PedidoEstado
-Pedido ..> PedidoEstado
-
-
-''facade
-class SistemaDeliveryFacade {}
-
-SistemaDeliveryFacade ..> HamburguerBuilder
-SistemaDeliveryFacade ..> Pedido
-SistemaDeliveryFacade ..> DeliveryPedidoDecorator
-SistemaDeliveryFacade ..> FormaPagamento
-
-
-''observer
-interface ObservadorPedido {
-+ atualizar(status: PedidoEstado)
+class Combo <<Composite>> extends OrderComponent  {
+    - items: List<OrderComponent>
+    + addItem(item: OrderComponent)
+    + getPrice(): double
+    + clone(): OrderComponent
+    + accept(visitor: OrderVisitor)
 }
-class AppCliente implements ObservadorPedido {}
-class AppMotoboy implements ObservadorPedido {}
 
-Pedido o-> ObservadorPedido
+class Drink extends OrderItem {}
+class Extra extends OrderItem {}
+abstract class Burger extends OrderItem {}
 
-
-''chain of responsibility
-abstract class ValidadorPedido {}
-class ValidadorAreaEntrega extends ValidadorPedido {}
-class ValidadorPagamento extends ValidadorPedido {}
-class ValidadorEstoque extends ValidadorPedido {}
-
-ValidadorPedido -> ValidadorPedido
-Pedido ..> ValidadorPedido
-
-
-''flyweight
-interface IngredienteFlyweight {}
-class Alface implements IngredienteFlyweight {}
-class Tomate implements IngredienteFlyweight {}
-class Pão implements IngredienteFlyweight {}
-class Carne implements IngredienteFlyweight {}
-
-class IngredienteFactory {}
-class ItemPedido {}
-
-IngredienteFactory -> IngredienteFlyweight
-ItemPedido -> IngredienteFlyweight
-HamburguerBuilder ..> ItemPedido
-
-'' visitor: visita o pedido
-
-interface Visitor {}
-class KitchenVisitor implements Visitor {}
-class OrderPriceVisitor implements Visitor {}
-class PackageVisitor implements Visitor {}
-
-'' bridge
-
-interface OrderType {}
-class DeliveryOrder implements OrderType {}
-class PickupOrder implements OrderType {}
-
-interface OrderOrigin {}
-class WhatsappOrder implements OrderOrigin {}
-class AppOrder implements OrderOrigin {}
-
-'' adapter
-
-interface APIAdapter {}
-class IFoodAdapter {}
-class RappiAdapter {}
-
-'' proxy
-
-interface CacheProxy {}
-class MenuProxy implements CacheProxy {}
-'' para nao precisar, por exemplo, reler o banco para pegar o menu
-
-'' composite
-
-interface Order {
-    public getNextItem()
-''    public getFullOrder()
+' --- Builder ---
+class BurgerBuilder <<Builder>> {
+    - burger: Burger
+    + reset()
+    + addMeat(): BurgerBuilder
+    + addCheese(): BurgerBuilder
+    + addLettuce(): BurgerBuilder
+    + getResult(): Burger
 }
-'' ja deixei uns itens seguindo Order (estao acima)
 
-
-'' iterator
-
-interface Iterable<T> {}
-interface Iterator<T> {}
-
-'' Order passa a atuar como um Iterable
-Order -|> Iterable
-Order ..> Iterator
-class OrderIterator implements Iterator {}
-
-
-'' template method
-
-abstract class PreparadorItem {
-    + processar()
+' --- Factory Method ---
+class BurgerFactory <<Factory Method>> {
+    + createBurger(type: String): Burger
 }
-class PreparadorHamburguer extends PreparadorItem {}
-class PreparadorBebida extends PreparadorItem {}
+class StandardBurger extends Burger {}
+class Cheeseburger extends Burger {}
+class Baconburger extends Burger {}
+BurgerFactory ..> Burger : creates
 
-'' O estado "Em Preparo" da cozinha aciona o template
-PedidoEstadoEmPreparo ..> PreparadorItem
+' --- Abstract Factory ---
+interface ComboAbstractFactory <<Abstract Factory>> {
+    + createBurger(): Burger
+    + createDrink(): Drink
+    + createExtra(): Extra
+}
+class DoubleBaconFactory implements ComboAbstractFactory {
+    + createBurger(): Burger
+    + createDrink(): Drink
+    + createExtra(): Extra
+}
+class CheeseLoveFactory implements ComboAbstractFactory {
+    + createBurger(): Burger
+    + createDrink(): Drink
+    + createExtra(): Extra
+}
 
+' ==========================================
+' STRUCTURAL PATTERNS (7)
+' ==========================================
 
-'' command
+' --- Bridge ---
+interface OrderOriginPlatform <<Bridge Implementor>> {
+    + processOriginDetails(): String
+}
+class WhatsappPlatform implements OrderOriginPlatform {
+    + processOriginDetails(): String
+}
+class AppPlatform implements OrderOriginPlatform {
+    + processOriginDetails(): String
+}
 
-interface Command {
+' --- Decorator ---
+abstract class OrderDecorator <<Decorator>> extends OrderComponent  {
+    # wrappedItem: OrderComponent
+    + OrderDecorator(item: OrderComponent)
+    + getPrice(): double
+    + clone(): OrderComponent
+    + accept(visitor: OrderVisitor)
+}
+class DeliveryFeeDecorator extends OrderDecorator {
+    - deliveryFee: double
+    + getPrice(): double
+}
+class TipDecorator extends OrderDecorator {
+    - tipAmount: double
+    + getPrice(): double
+}
+
+' --- Flyweight ---
+interface IngredientFlyweight <<Flyweight>> {
+    + getName(): String
+    + getCalories(): int
+}
+class SharedIngredient implements IngredientFlyweight {
+    - name: String
+    - calories: int
+    + getName(): String
+    + getCalories(): int
+}
+class IngredientFactory {
+    - ingredientsMap: Map<String, IngredientFlyweight>
+    + getIngredient(name: String): IngredientFlyweight
+}
+IngredientFactory o-> IngredientFlyweight
+
+' --- Facade ---
+class DeliverySystemFacade <<Facade>> {
+    - dispatcher: CentralDispatcher
+    - menuManager: MenuManager
+    + placeOrder(order: Order, payment: PaymentStrategy)
+    + trackOrder(orderId: String): String
+}
+
+' --- Proxy ---
+interface MenuCacheProxy <<Proxy>> {
+    + getAvailableItems(): List<String>
+}
+class RealMenu implements MenuCacheProxy {
+    + getAvailableItems(): List<String>
+}
+class CachedMenuProxy implements MenuCacheProxy {
+    - realMenu: RealMenu
+    - cache: List<String>
+    + getAvailableItems(): List<String>
+}
+CachedMenuProxy -> RealMenu
+
+' --- Adapter ---
+interface DeliveryAPI <<Adapter Target>> {
+    + sendOrderToPartner(orderDetails: String)
+}
+class IFoodAdapter <<Adapter>> implements DeliveryAPI  {
+    - ifoodService: Object
+    + sendOrderToPartner(orderDetails: String)
+}
+class RappiAdapter <<Adapter>> implements DeliveryAPI  {
+    - rappiService: Object
+    + sendOrderToPartner(orderDetails: String)
+}
+
+' ==========================================
+' BEHAVIORAL PATTERNS (11)
+' ==========================================
+
+' --- State ---
+interface OrderState <<State>> {
+    + nextState(order: Order)
+    + cancelOrder(order: Order)
+}
+class NewState <<Singleton>> implements OrderState {
++ nextState(order: Order) 
++ cancelOrder(order: Order) 
+}
+class PreparingState <<Singleton>> implements OrderState { 
++ nextState(order: Order)  + cancelOrder(order: Order) }
+class ReadyState <<Singleton>> implements OrderState { + nextState(order: Order) \n + cancelOrder(order: Order) }
+class DeliveringState <<Singleton>> implements OrderState { + nextState(order: Order) \n + cancelOrder(order: Order) }
+class DeliveredState <<Singleton>> implements OrderState { + nextState(order: Order) \n + cancelOrder(order: Order) }
+class CancelledState <<Singleton>> implements OrderState { + nextState(order: Order) \n + cancelOrder(order: Order) }
+
+' --- Strategy ---
+interface PaymentStrategy <<Strategy>> {
+    + pay(amount: double): boolean
+}
+class PixPayment implements PaymentStrategy {
++ pay(amount: double): boolean
+}
+class CreditCardPayment implements PaymentStrategy {
++ pay(amount: double): boolean
+}
+class CashPayment implements PaymentStrategy {
++ pay(amount: double): boolean
+}
+
+' --- Observer ---
+interface OrderObserver <<Observer>> {
+    + update(order: Order)
+}
+class ClientApp implements OrderObserver {
++ update(order: Order)
+}
+class CourierApp implements OrderObserver {
++ update(order: Order)
+}
+
+' --- Iterator ---
+interface OrderIterator <<Iterator>> {
+    + hasNext(): boolean
+    + next(): OrderComponent
+}
+class OrderItemIterator implements OrderIterator {
+    - items: List<OrderComponent>
+    - position: int
+    + hasNext(): boolean
+    + next(): OrderComponent
+}
+
+' --- Main Context: Order (Bridge Abstraction, Iterable, Context) ---
+class Order <<Bridge Abstraction>> {
+    - id: String
+    - state: OrderState
+    - paymentMethod: PaymentStrategy
+    - originPlatform: OrderOriginPlatform
+    - items: List<OrderComponent>
+    - observers: List<OrderObserver>
+    + addObserver(o: OrderObserver)
+    + notifyObservers()
+    + setState(state: OrderState)
+    + processPayment()
+    + createIterator(): OrderIterator
+    + calculateTotal(): double
+    + createMemento(): OrderMemento
+    + restore(m: OrderMemento)
+}
+Order o-> OrderState
+Order o-> PaymentStrategy
+Order o-> OrderOriginPlatform
+Order o-> OrderObserver
+Order ..> OrderItemIterator : creates
+
+' --- Mediator ---
+interface LogisticsMediator <<Mediator>> {
+    + notify(sender: Object, event: String)
+}
+class CentralDispatcher <<Singleton>> implements LogisticsMediator  {
+    - courierApp: CourierApp
+    - kitchenSystem: Object
+    + notify(sender: Object, event: String)
+}
+Order ..> CentralDispatcher : communicates
+
+' --- Command ---
+interface Command <<Command>> {
     + execute()
     + undo()
 }
-class AdicionarItemCommand implements Command {}
-class CancelarPedidoCommand implements Command {}
+class AddItemCommand implements Command {
+    - order: Order
+    - item: OrderComponent
+    + execute()
+    + undo()
+}
+class CancelOrderCommand implements Command {
+    - order: Order
+    + execute()
+    + undo()
+}
+class CashierInvoker {
+    - commandHistory: List<Command>
+    + executeCommand(c: Command)
+}
+CashierInvoker o-> Command
 
-class TelaCaixaInvoker {}
+' --- Chain of Responsibility ---
+abstract class OrderValidationHandler <<Chain of Responsibility>> {
+    # next: OrderValidationHandler
+    + setNext(handler: OrderValidationHandler): OrderValidationHandler
+    + handle(order: Order): boolean
+}
+class DeliveryAreaHandler extends OrderValidationHandler {
++ handle(order: Order): boolean
+}
+class PaymentHandler extends OrderValidationHandler {
++ handle(order: Order): boolean
+}
+class StockHandler extends OrderValidationHandler {
++ handle(order: Order): boolean
+}
 
-'' invoker (a tela do caixa ou cozinha) guarda uma fila de comandos
-TelaCaixaInvoker -> Command
+' --- Template Method ---
+abstract class ItemPreparer <<Template Method>> {
+    + process()
+    # abstract prepareIngredients()
+    # abstract cook()
+    # packageItem()
+}
+class BurgerPreparer extends ItemPreparer {
+    # prepareIngredients()
+    # cook()
+}
+class DrinkPreparer extends ItemPreparer {
+    # prepareIngredients()
+    # cook()
+}
 
+' --- Memento ---
+class OrderMemento <<Memento>> {
+    - stateData: String
+    - itemsSnapshot: List<OrderComponent>
+    + getStateData(): String
+    + getItemsSnapshot(): List<OrderComponent>
+}
+class OrderHistoryCaretaker {
+    - history: List<OrderMemento>
+    + save(order: Order)
+    + undo(order: Order)
+}
+OrderHistoryCaretaker o-> OrderMemento
 
-'' mediator
+' --- Interpreter ---
+interface SearchExpression <<Interpreter>> {
+    + interpret(context: Order): boolean
+}
+class StatusExpression implements SearchExpression {
+    - requiredState: Class
+    + interpret(context: Order): boolean
+}
+class ValueExpression implements SearchExpression {
+    - minValue: double
+    + interpret(context: Order): boolean
+}
+class AndExpression implements SearchExpression {
+    - expr1: SearchExpression
+    - expr2: SearchExpression
+    + interpret(context: Order): boolean
+}
+AndExpression o-> SearchExpression
 
-interface CoordenadorLogistica {}
-class CentralPedidos implements CoordenadorLogistica {}
-
-'' A central coordena a comunicação com o motoboy
-CentralPedidos ..> AppMotoboy
-
-
-'' memento
-
-class PedidoMemento {}
-class HistoricoPedidoCaretaker {}
-
-HistoricoPedidoCaretaker o-> PedidoMemento
-HamburguerBuilder ..> PedidoMemento : cria / restaura
-
-
-'' interpreter
-
-interface ExpressaoBusca {}
-class StatusExpressao implements ExpressaoBusca {}
-class ValorExpressao implements ExpressaoBusca {}
-class AndExpressao implements ExpressaoBusca {}
-
-'' Expressões compostas (como o AND) juntam outras expressões
-AndExpressao o-> ExpressaoBusca
-
-'' A expressão avalia os dados de um pedido
-ExpressaoBusca ..> Pedido
-
+' --- Visitor ---
+interface OrderVisitor <<Visitor>> {
+    + visitItem(item: OrderItem)
+    + visitCombo(combo: Combo)
+    + visitDecorator(decorator: OrderDecorator)
+}
+class KitchenVisitor implements OrderVisitor {
+    + visitItem(item: OrderItem)
+    + visitCombo(combo: Combo)
+    + visitDecorator(decorator: OrderDecorator)
+}
+class PricingVisitor implements OrderVisitor {
+    + visitItem(item: OrderItem)
+    + visitCombo(combo: Combo)
+    + visitDecorator(decorator: OrderDecorator)
+}
+class PackagingVisitor implements OrderVisitor {
+    + visitItem(item: OrderItem)
+    + visitCombo(combo: Combo)
+    + visitDecorator(decorator: OrderDecorator)
+}
 @enduml
