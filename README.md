@@ -1,3 +1,3 @@
 # Burger
 
-[Class Diagram](./classDiagram.png)
+![Class Diagram](./classDiagram.png)
