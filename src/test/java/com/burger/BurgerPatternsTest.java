@@ -39,27 +39,34 @@ public class BurgerPatternsTest {
     }
 
     @Test
-    public void testPrototypeAndComposite() {
+    public void testComposite() {
+        Combo c1 = new Combo("C1");
+        c1.addItem(new Drink("D1", 2.0));
+        assertEquals(2.0, c1.getPrice());
+    }
+
+    @Test
+    public void testPrototype() {
         Combo c1 = new Combo("C1");
         c1.addItem(new Drink("D1", 2.0));
         Combo c2 = (Combo) c1.clone();
         assertEquals(2.0, c2.getPrice());
         assertNotSame(c1, c2);
     }
-    
+
     @Test
     public void testBridge() {
         OrderOriginPlatform p = new WhatsappPlatform();
         assertEquals("WhatsApp Customer Data", p.processOriginDetails());
     }
-    
+
     @Test
     public void testDecorator() {
         OrderItem item = new OrderItem("I1", 10.0);
         OrderDecorator dec = new DeliveryFeeDecorator(item, 5.0);
         assertEquals(15.0, dec.getPrice());
     }
-    
+
     @Test
     public void testFlyweight() {
         IngredientFactory f = new IngredientFactory();
@@ -67,7 +74,7 @@ public class BurgerPatternsTest {
         IngredientFlyweight i2 = f.getIngredient("Meat");
         assertSame(i1, i2);
     }
-    
+
     @Test
     public void testFacade() {
         DeliverySystemFacade f = new DeliverySystemFacade();
@@ -77,20 +84,20 @@ public class BurgerPatternsTest {
         verify(mockPay).pay(anyDouble());
         assertTrue(o.getState() instanceof ReadyState);
     }
-    
+
     @Test
     public void testProxy() {
         MenuCacheProxy proxy = new CachedMenuProxy();
         assertNotNull(proxy.getAvailableItems());
     }
-    
+
     @Test
     public void testAdapter() {
         DeliveryAPI api = new IFoodAdapter();
         api.sendOrderToPartner("Order");
         // Ensure no crash
     }
-    
+
     @Test
     public void testState() {
         Order o = new Order();
@@ -101,13 +108,13 @@ public class BurgerPatternsTest {
         assertTrue(o.getState() instanceof CancelledState);
         assertThrows(IllegalStateException.class, () -> o.getState().nextState(o));
     }
-    
+
     @Test
     public void testStrategy() {
         PaymentStrategy p = new CreditCardPayment();
         assertTrue(p.pay(10.0));
     }
-    
+
     @Test
     public void testObserver() {
         Order o = new Order();
@@ -116,7 +123,7 @@ public class BurgerPatternsTest {
         o.notifyObservers();
         verify(obs).update(o);
     }
-    
+
     @Test
     public void testIterator() {
         Order o = new Order();
@@ -125,13 +132,13 @@ public class BurgerPatternsTest {
         assertTrue(it.hasNext());
         assertNotNull(it.next());
     }
-    
+
     @Test
     public void testMediator() {
         CentralDispatcher d = CentralDispatcher.getInstance();
         d.notify(this, "FOOD_READY");
     }
-    
+
     @Test
     public void testCommand() {
         Order o = new Order();
@@ -143,20 +150,20 @@ public class BurgerPatternsTest {
         invoker.undoCommand();
         assertEquals(0, o.getItems().size());
     }
-    
+
     @Test
     public void testChain() {
         OrderValidationHandler h1 = new DeliveryAreaHandler();
         h1.setNext(new PaymentHandler());
         assertTrue(h1.handle(new Order()));
     }
-    
+
     @Test
     public void testTemplateMethod() {
         ItemPreparer p = new BurgerPreparer();
         p.process();
     }
-    
+
     @Test
     public void testMemento() {
         Order o = new Order();
@@ -167,7 +174,7 @@ public class BurgerPatternsTest {
         c.undo(o);
         assertEquals(1, o.getItems().size());
     }
-    
+
     @Test
     public void testInterpreter() {
         Order o = new Order();
@@ -175,11 +182,11 @@ public class BurgerPatternsTest {
         SearchExpression expr = new ValueExpression(5.0);
         assertTrue(expr.interpret(o));
     }
-    
+
     @Test
     public void testVisitor() {
         OrderItem i = new OrderItem("I", 1.0);
         OrderVisitor v = new PricingVisitor();
-        i.accept(v);
+        assertDoesNotThrow(() -> i.accept(v));
     }
 }
